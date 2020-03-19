@@ -145,7 +145,7 @@
 
                 <div class="reservation-form small-12 columns no-padding">
 
-                    <form action="index.php" method="post">
+                    <form action="index.php#contact-us" method="post">
 
                         <div class="form-part1 small-12 large-8 xlarge-7 columns no-padding">
                     
@@ -173,6 +173,11 @@
                     </form>
 
                     <?php 
+
+                    // Inserir Arquivos do PHPMailer
+                    require 'phpmailer/Exception.php';
+                    require 'phpmailer/PHPMailer.php';
+                    require 'phpmailer/SMTP.php';
                     
                     function clean_input($input) {
                         $input = trim($input);
@@ -195,24 +200,22 @@
                             $mensagem = clean_input($mensagem); 
                             $telefone = clean_input($telefone);  
                             $data = clean_input($data); 
-                            $num_pessoas = clean_input($num_pessoas); 
-                    
-                        }
-
-                        // Inserir Arquivos do PHPMailer
-                        require 'phpmailer/Exception.php';
-                        require 'phpmailer/PHPMailer.php';
-                        require 'phpmailer/SMTP.php';
-
-                        // Usar as classes sem o namespace
-                        use PHPMailer\PHPMailer\PHPMailer;
-                        use PHPMailer\PHPMailer\Exception;
-
-                        // Criação do Objeto da Classe PHPMailer
-                        $mail = new PHPMailer(true); 
+                            $num_pessoas = clean_input($num_pessoas);
+                            
+                            $texto_msg = 'Email enviado do sistema de reservas do site' . '<br><br>' . 
+                            'Nome: ' . $nome . '<br>' .
+                            'Email: ' . $email . '<br>' .
+                            'Telefone: ' . $telefone . '<br>' .
+                            'Data: ' . $data . '<br>' .
+                            'Número de pessoas: ' . $num_pessoas . '<br>' .
+                            'Mensagem: ' . $mensagem . '<br>';
+                            
+                            // Criação do Objeto da Classe PHPMailer
+                            $mail = new PHPMailer(true); 
+                            $mail->CharSet="UTF-8";
 
 
-                        try {
+                            try {
                             
                             //Retire o comentário abaixo para soltar detalhes do envio 
                             // $mail->SMTPDebug = 2;                                
@@ -247,10 +250,10 @@
                             // );
 
                             // Remetente
-                            $mail->setFrom('from@example.com', 'Mailer');
+                            $mail->setFrom($email, $nome);
                             
                             // Destinatário
-                            $mail->addAddress('testeccphp@outlook.com', 'Joe User');
+                            $mail->addAddress('testeccphp@outlook.com', 'Restô Bar');
 
                             // Conteúdo
 
@@ -258,19 +261,33 @@
                             $mail->isHTML(true);                                  
 
                             // Assunto
-                            $mail->Subject = 'Insira o assunto';
-                            $mail->Body    = 'Insira o texto do e-mail';
-                            $mail->AltBody = 'Formato alternativo em texto puro para emails que não aceitam HTML';
+                            $mail->Subject = 'Novo pedido de reserva';
+                            $mail->Body    = $texto_msg;
+                            $mail->AltBody = $texto_msg;
 
                             // Enviar E-mail
                             $mail->send();
-                            echo 'Mensagem enviada com sucesso';
+                            confirmacao = 'Mensagem enviada com sucesso';
                             } catch (Exception $e) {
-                            echo 'A mensagem não foi enviada pelo seguinte motivo: ', $mail->ErrorInfo;
+                            confirmacao = 'A mensagem não pode ser enviada';
                         }
-                    ?>
+
+                    
+                        }
+
+                        
+
+                        // Usar as classes sem o namespace
+                        use PHPMailer\PHPMailer\PHPMailer;
+                        use PHPMailer\PHPMailer\Exception;
+
+                                            ?>
 
                 </div>
+
+                <?php   if ($_SERVER['REQUEST_METHOD'] == 'POST') { ?>
+                    <p><?php echo $confirmacao ?></p>
+                <?php } ?>
 
             </div>
         </div>
